@@ -1,28 +1,50 @@
 import "./Body.css";
-import Button from "./Button";
-
-function ButtonChild() {
-  return <div>버튼</div>;
-}
+import { useRef, useState } from "react";
 
 export default function Body() {
-  const btnProps = {
-    text: "1번 버튼",
-    color: "red",
-    a: 1,
-    b: 2,
-    c: 3,
+  const [state, setState] = useState({ name: "", gender: "", bio: "" });
+  const onChange = (e) => {
+    setState({ ...state, [e.target.name]: e.target.value }); // [e.target.name] : 계산된 프로퍼티라는 자바스크리트의 문법
   };
+  const onSubmit = () => {
+    console.log(state);
+    if (state.name === "") {
+      nameRef.current.focus();
+      return;
+    }
+    alert(`${state.name}님 회원가입을 축하드립니다.`);
+  };
+  const nameRef = useRef();
   return (
     <div className="body">
-      <h1>body</h1>
-      <Button {...btnProps}>
-        {/* 전개 연산자를 활용한 프롭스 객체 전달 */}
-        <ButtonChild></ButtonChild>
-        {/* children 전달 */}
-      </Button>
-      <Button text={"2번 버튼"} color={"green"} />
-      <Button text={"3번 버튼"} color={"blue"} />
+      <div>
+        <input
+          type="text"
+          ref={nameRef}
+          onChange={onChange}
+          value={state.name}
+          name="name"
+        />
+      </div>
+      <div>
+        <select value={state.gender} onChange={onChange} name="gender">
+          <option value="">밝히지 않음</option>
+          <option value="female">여성</option>
+          <option value="male">남성</option>
+        </select>
+      </div>
+      <div>
+        <textarea
+          name="bio"
+          value={state.bio}
+          onChange={onChange}
+          cols="30"
+          rows="10"
+        ></textarea>
+      </div>
+      <div>
+        <button onClick={onSubmit}>회원가입</button>
+      </div>
     </div>
   );
 }
