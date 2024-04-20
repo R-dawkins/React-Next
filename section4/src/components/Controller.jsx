@@ -1,4 +1,9 @@
+import useUpdate from '../hooks/useUpdate';
+
 export default function Controller({ onClickButton }) {
+  useUpdate(()=>{
+    console.log("컨트롤러 컴포넌트 업데이트");
+  })
   return (
     <div>
       <button onClick={() => onClickButton(-1)}>-1</button>
