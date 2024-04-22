@@ -1,9 +1,10 @@
-import { useReducer, useRef, useState } from "react";
+import { useReducer, useRef, useCallback } from "react";
 import "./App.css";
 import Header from "./components/Header";
 import TodoEditor from "./components/TodoEditor";
 import TodoList from "./components/TodoList";
-
+// useCallback : 원하는 함수를 useCallback(함수,[])와 같은 방법으로 넣어서 사용한다.
+// 의존성 배열에 아무것도 넣지 않으면 함수가 첫 렌더링 이후에 재생성되지 않는다.
 const mockData = [
   {
     id: 0,
@@ -55,7 +56,7 @@ function App() {
     });
     // setTodos([...todos, newTodo]);
   };
-  const onUpdate = (targetId) => {
+  const onUpdate = useCallback((targetId) => {
     dispatch({
       type: "UPDATE",
       data: targetId,
@@ -65,14 +66,14 @@ function App() {
     //     todo.id === targetId ? { ...todo, isDone: !todo.isDone } : todo
     //   )
     // );
-  };
-  const onDelete = (targetId) => {
+  }, []);
+  const onDelete = useCallback((targetId) => {
     dispatch({
       type: "DELETE",
       data: targetId,
     });
     // setTodos(todos.filter((todo) => todo.id !== targetId));
-  };
+  }, []);
   return (
     <div className="App">
       <Header />
