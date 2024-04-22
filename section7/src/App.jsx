@@ -1,8 +1,9 @@
-import { useReducer, useRef, useCallback } from "react";
+import { useReducer, useRef, useCallback, useMemo } from "react";
 import "./App.css";
 import Header from "./components/Header";
 import TodoEditor from "./components/TodoEditor";
 import TodoList from "./components/TodoList";
+import { TodoStateContext, TodoDispatchContext } from "./TodoContext";
 // useCallback : 원하는 함수를 useCallback(함수,[])와 같은 방법으로 넣어서 사용한다.
 // 의존성 배열에 아무것도 넣지 않으면 함수가 첫 렌더링 이후에 재생성되지 않는다.
 const mockData = [
@@ -74,11 +75,20 @@ function App() {
     });
     // setTodos(todos.filter((todo) => todo.id !== targetId));
   }, []);
+
+  const memoizedDispatches = useMemo(() => {
+    return { onCreate, onUpdate, onDelete };
+  }, []);
+
   return (
     <div className="App">
       <Header />
-      <TodoEditor onCreate={onCreate} />
-      <TodoList todos={todos} onUpdate={onUpdate} onDelete={onDelete} />
+      <TodoStateContext.Provider value={todos}>
+        <TodoDispatchContext.Provider value={memoizedDispatches}>
+          <TodoEditor />
+          <TodoList />
+        </TodoDispatchContext.Provider>
+      </TodoStateContext.Provider>
     </div>
   );
 }
