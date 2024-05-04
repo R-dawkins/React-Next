@@ -1,36 +1,34 @@
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-export default function Home() {
-  const code = "KOR"
-  const router = useRouter()
-  const onClickButton = ()=>{
-    router.push("/search") // 페이지 이동
-    // router.push({ 객체도 가능
-    // pathname:"country/[code]",
-    //  query:{code:code}
-    // })
-    // router.replace 뒤로가기 방지
-    // router.back 뒤로가기
-    // router.reload 새로고침
-  }
-  return (
-<div>Home Page
-  <div>
-    <button onClick={onClickButton}>
-      Search 페이지로 이동
-    </button>
-  </div>
-  <div>
-    <Link href={"/search"}>Search Page로 이동</Link>
-  </div>
-  <div>
-    <Link href={`/country/${code}`}>{code}로 이동</Link> {/* 방법 1 */}
-    <Link href={{ /* 방법 2 */
-      pathname:"country/[code]",
-      query:{code:code}
-    }}>{code}로 이동</Link>
-  </div>
-</div>
+import { fetchCountries } from "@/api";
+import { useEffect } from "react";
 
+export default function Home({ countries }) {
+  console.log("home"); // SSR을 위해 서버에서 HOME 컴포넌트가 한번 실행 되고 나서 브라우저에서 실행되기 때문에 2번 실행된다.
+  // 마찬가지로 서버에서 한번 실행되기 때문에 window 객체와 같이 Node 환경에 존재하지 않는 객체들을 사용하려고 하면 오류가 발생한다.
+  // window.location --> 오류 발생
+  useEffect(() => {
+    // 컴포넌트가 마운트 될 때만 일어나는 useEffect 같은 경우에는
+    // 서버에서 실행되지 않고 실제 마운트가 될 때에만 일어난다.
+  }, []);
+  return (
+    <div>
+      {countries.map((country) => (
+        <div key={country.code}>{country.commonName}</div>
+      ))}
+    </div>
   );
 }
+
+export const getServerSideProps = async () => {
+  // SSR 방식으로 동작하게 하는 메소드
+  // SSR을 위해 서버측에서 (여기서는 Home)컴포넌트에게 전달할 데이터(주로 props)를 설정하는 함수
+  // 반드시 객체를 반환해야한다
+  // 이 함수에서 실행되는 함수나 코드들은 브라우저에서 확인할 수 없다 왜냐하면 서버에서 실행되었기 때문이다
+  console.log("getServerSideProps Called"); // 서버 터미널에서만 확인 가능, 브라우저에서는 확인 불가능
+
+  const countries = await fetchCountries();
+  return {
+    props: {
+      countries,
+    },
+  };
+};
