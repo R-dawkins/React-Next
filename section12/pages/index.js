@@ -18,7 +18,7 @@ export default function Home({ countries }) {
   );
 }
 
-export const getServerSideProps = async () => {
+export const getStaticProps = async () => {
   // SSR 방식으로 동작하게 하는 메소드
   // SSR을 위해 서버측에서 (여기서는 Home)컴포넌트에게 전달할 데이터(주로 props)를 설정하는 함수
   // 반드시 객체를 반환해야한다
@@ -26,6 +26,7 @@ export const getServerSideProps = async () => {
   console.log("getServerSideProps Called"); // 서버 터미널에서만 확인 가능, 브라우저에서는 확인 불가능
 
   const countries = await fetchCountries();
+  console.log("hello");
   return {
     props: {
       countries,

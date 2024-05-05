@@ -11,6 +11,13 @@ export default function Country({ country }) {
   const router = useRouter();
   const { code } = router.query;
   // 서버를 거칠 필요가 없이 클라이언트 측에서 사용할 데이터면 react hooks를 사용하면 된다.
+  if (router.isFallback) {
+    //현재 fallback 상태인지 아닌지를 True False로 반환한다.
+    return <div>Loading...</div>;
+  }
+  if (!country) {
+    return <div>존재하지 않는 국가입니다.</div>;
+  }
   return (
     <div>
       {country.commonName} {country.officialName}
@@ -19,8 +26,20 @@ export default function Country({ country }) {
 }
 
 Country.Layout = SubLayout;
-
-export const getServerSideProps = async (context) => {
+export const getStaticPaths = () => {
+  // 동적 경로인 정적 페이지 생성시 미리 생성해둘 경로를 설정하는 메서드
+  // 빌드타임에 미리 html파일을 생성하여 넘겨주는 SSG 특성 상 미리 경로를 설정해두지 않으면 동적 경로를 사용할 수 없다
+  return {
+    paths: [{ params: { code: "ABW" } }, { params: { code: "KOR" } }],
+    fallback: true,
+    //fallback 옵션 : 지정된 경로가 아닐 시 대신 출력할 것들
+    // 옵션 1) false : 404 오류 페이지 출력
+    // 옵션 2) "blocking" : 요청 받자마자 생성하여 브라우저에 반환
+    // 옵션 3) true : props가 없는 버전의 html 파일 생성 후 빠르게 props 계산하여 출력 (선 html 후 js연결과 비슷한 느낌)
+  };
+};
+export const getStaticProps = async (context) => {
+  console.log("Server revalidate");
   const { code } = context.params;
   let country = null;
   if (code) {
@@ -28,5 +47,9 @@ export const getServerSideProps = async (context) => {
   }
   return {
     props: { country },
+    revalidate: 3,
+    // ISR 방식을 사용하기 위한 키워드, 3초마다 재생성한다.
+    //ISR : ISR 방식이란 증분 정적 재생성을 뜻하며, SSG를 활용한 빌드시 html 생성과 SSR과 같이 빠른 업데이트 반영을 혼용하여 렌더링하는 방법이다.
+    // 빌드시에 html 파일을 생성하고 revalidate : 시간(초)를 지정하여 지정한 시간 마다 파일이 최신 버전으로 재생성된다.
   };
 };
