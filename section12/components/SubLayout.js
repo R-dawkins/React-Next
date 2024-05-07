@@ -1,9 +1,9 @@
 import style from "./SubLayout.module.css";
 export default function SubLayout({ children }) {
   return (
-    <div className="SubLayout">
-      <div>{children}</div>
+    <>
+      {children}
       <footer className={style.footer}>@dawkins</footer>
-    </div>
+    </>
   );
 }

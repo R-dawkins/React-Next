@@ -1,6 +1,9 @@
 import { fetchCountry } from "@/api";
 import SubLayout from "@/components/SubLayout";
 import { useRouter } from "next/router";
+import style from "./[code].module.css";
+import Image from "next/image";
+import Head from "next/head";
 // [code].js : Dynamic Routing 동적 라우팅
 // [[code]].js : Optional Routing 선택적 라우팅
 // [...code].js : Catch All Routing
@@ -13,15 +16,67 @@ export default function Country({ country }) {
   // 서버를 거칠 필요가 없이 클라이언트 측에서 사용할 데이터면 react hooks를 사용하면 된다.
   if (router.isFallback) {
     //현재 fallback 상태인지 아닌지를 True False로 반환한다.
-    return <div>Loading...</div>;
+    return (
+      <>
+        <Head>
+          <title>NARAS</title>
+          <meta property="og:image" content="/thumnail.png"></meta>
+          <meta property="og:title" content="NARAS"></meta>
+          <meta
+            property="og:description"
+            content="전 세계 국가들의 정보를 확인해 보세요"
+          ></meta>
+        </Head>
+        <div>Loading...</div>
+      </>
+    );
   }
   if (!country) {
     return <div>존재하지 않는 국가입니다.</div>;
   }
   return (
-    <div>
-      {country.commonName} {country.officialName}
-    </div>
+    <>
+      <Head>
+        <title>{country.commonName} 국가 정보 조회 | NARAS</title>
+        <meta property="og:image" content={country.flagImg}></meta>
+        <meta
+          property="og:title"
+          content={`${country.commonName} 국가 정보 조회 | NARAS`}
+        ></meta>
+        <meta
+          property="og:description"
+          content={`${country.commonName} 국가의 자세한 정보입니다.`}
+        ></meta>
+      </Head>
+      <div className={style.container}>
+        <div className={style.header}>
+          <div className={style.commonName}>
+            {country.flagEmoji}&nbsp;{country.commonName}
+          </div>
+          <div className={style.officialName}>{country.officialName}</div>
+        </div>
+        <div className={style.flag_img}>
+          <Image src={country.flagImg} fill alt="flag image" />
+        </div>
+        <div className={style.body}>
+          <div>
+            <b>코드 :</b>&nbsp;{country.code}
+          </div>
+          <div>
+            <b>수도 :</b>&nbsp;{country.capital.join(", ")}
+          </div>
+          <div>
+            <b>지역 :</b>&nbsp;{country.region}
+          </div>
+          <div>
+            <b>지도 :</b>&nbsp;
+            <a target="_black" href={country.googleMapURL}>
+              {country.googleMapURL}
+            </a>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -39,7 +94,6 @@ export const getStaticPaths = () => {
   };
 };
 export const getStaticProps = async (context) => {
-  console.log("Server revalidate");
   const { code } = context.params;
   let country = null;
   if (code) {
